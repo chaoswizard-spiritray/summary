@@ -1,0 +1,18 @@
+MySQL使用触发器来禁止修改数据库中某一列或多列字段的值
+业务需要，虽然用处不大，不过聊胜于无。
+
+建测试表
+CREATE TABLE `test` (
+  `id` int(8) NOT NULL COMMENT 'ID',
+  `age` int(8) DEFAULT 0 COMMENT '年龄'
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+创建触发器：
+DROP TRIGGER IF EXISTS `update_test`;
+DELIMITER ;;
+CREATE TRIGGER `update_test` BEFORE UPDATE ON `test` FOR EACH ROW BEGIN
+set new.id=old.id;
+set new.age=old.age;
+END
+;;
+DELIMITER ;

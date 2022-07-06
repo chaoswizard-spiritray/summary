@@ -1,0 +1,90 @@
+I、
+1、首先理解一个东西。Java中线程的状态，新建、可运行（运行态、就绪态）、阻塞、等待、待时等待、死亡（源码有详细解释）
+2、New（新建一个线程、但是没有start）
+3、Runnable（线程已经启动，可能是正在执行，也可能是在等待操作系统资源如cpu-也就是硬件资源。软件资源已经就绪）
+4、Blocked（线程正在等待Java对象中的监听器-锁，也就是在等待多线程同步资源，可以说是软件资源.是被动停止不前）
+5、Waiting（因为调用一些特定的方法进入等待，比如：wait、join，是主动停止不前）
+6、Timed_Waiting(和waiting一样，不过，有等待主动等待时长，超过时长主动前进)
+7、Terminated(线程正常执行完成或者因为异常中断进入死亡。那么线程池中的线程异常中断会死亡吗？
+不会，如果任务中出现异常又没有进行捕获或者抛出。线程停止该任务，进入休眠，注意不会进行异常抛出。该任务被认为已经正常执行完成。所以线程池任务异常要自行预先处理)
+8、何为同步：（手抓球，球离开袋子就必然在手中--https://blog.csdn.net/fanrenxiang/article/details/80623884?Java原子类-Atomic）
+II、
+1、操作系统中线程状态：五种：新建、就绪、运行、阻塞、死亡。
+
+III、（详情见ThreadPoolExecutorTest01源码）
+1、现在我们来理解线程池中的一般参数参数意义（ThreadPoolExecutor）
+2、corePoolSize--int(核心线程数：线程池中一直存活的线程池数目。什么叫做存活，也就是非New&Terminate。
+那就是说，我们线程池中线程必须保证至少创建了这些线程且已经start但是没有死。他们可能在运行可能空闲)
+（线程池中的线程数如果小于核心数，肯定会创建并且启动）
+3、maximumPoolSize--int(线程池中最多允许存在的线程的数目)
+4、keepAliveTime--long(在corePoolSize与maximumPoolSize之间的线程存活的时间)
+    （keepAliveTime：表示线程没有任务执行时最多保持多久时间会终止。
+     默认情况下， 只有当线程池中的线程数大于corePoolSize时，keepAliveTime才会起作用，
+     直到线程池中的线程数不大于corePoolSize，即当线程池中的线程数大于corePoolSize时，
+     如果一个线程空闲的时间达到keepAliveTime，则会终止，直到线程池中的线程数不超过corePoolSize。
+     但是如果调用了allowCoreThreadTimeOut(boolean)方法，在线程池中的线程数不大于corePoolSize时，
+     keepAliveTime参数也会起作用，直到线程池中的线程数为0；allowCoreThreadTimeOut默认是false，
+     即核心线程不会超时关闭，除非手动关闭线程池才会销毁线程，allowCoreThreadTimeOut设置为true，
+     线程空闲的时间达到keepAliveTime，核心线程数的线程会被全部关闭。
+     ）
+     （细节问题(看源码)：1、具体回收空闲线程时，究竟是按照区分核心线程与非核心线程来进行回收，还是只要数目重新达到coreThreadPoolSize就行？是后者。
+                2、创建的coreThreadPoolSize与maximumPoolSize之间的线程会不会去执行阻塞队列中的任务？会
+                3、创建的coreThreadPoolSize与maximumPoolSize之间的线程会空闲时会不会进行重用？会
+                （这三个问题都有一个前提：--|当线程数已经超过coreThreadPoolSize时，不再区分核心线程，活跃计时开始生效--|(==这句话是重点==)。
+                  先检查线程池中线程数目，如果线程的数目大于coreThreadPoolSize且各自线程活跃计时超时，则进入回收。
+                  否则就不回收，有任务来都扔给他们。但是如果线程数目小于maximumPoolSize就还是会创建新线程。）
+      )
+5、TimeUnity--TimeUnity（时间单位）
+6、WorkQueue--BlockingQueue（等待队列的类型）
+7、threadFactory--ThreadFactory(线程创建工厂，实现ThreadFactory接口。可自己指定)
+8、handler--RejectedExecutionHandler（拒绝策略）
+
+IV、四种工作队列
+1、ArrayBlockingQueue
+是一个基于数组结构的有界阻塞队列，此队列按 FIFO（先进先出）原则对元素进行排序。
+2、LinkedBlockingQueue
+一个基于链表结构的阻塞队列，此队列按FIFO （先进先出） 排序元素，吞吐量通常要高于ArrayBlockingQueue。静态工厂方法Executors.newFixedThreadPool()使用了这个队列
+3、SynchronousQueue
+一个不存储元素的阻塞队列。每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQueue，静态工厂方法Executors.newCachedThreadPool（5）使用了这个队列。
+4、PriorityBlockingQueue
+一个具有优先级的无限阻塞队列。
+5、这几种队列都继承自AbstractQueue并且实现了BlockingQueue接口，所以我们也能自定义工作队列
+V、
+1、四种拒绝策略（handler）
+（流程：
+    1、如果核心线程已经被占用完，任务还在提交，则放入队列，这些任务仍然交给核心线程进行处理。
+    2、任务继续提交，当任务的数目已经超过阻塞队列且核心线程数小于maximumPoolSize就创建新线程进行任务处理
+    （这些新线程存活多久取决于你设置的存活时间，但是究竟会不会重用这个空闲的新建线程，感觉并不重要，个人认为会重用）。
+    3、任务继续提交，当线程数等于maximumPoolSize时，策略触发。
+    （两个重要节点：corePoolSize、maximumPoolSize判断决定任务应该放于队列还是交给具体哪类线程执行）
+
+  ）
+1、 AbortPolicy ： 直接抛出异常，阻止系统正常运行。默认是该策略。(不断将任务提交到工作队列，当工作队列满时，停止提交，
+    并立即抛出InterruptedException对象，如果没有进行try-cathch进行处理停止当前提交任务的线程正常运行。)
+
+2、 CallerRunsPolicy ： 只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。
+   （比如从main线程中进行任务的提交，如果提交已经满了任务队列，就将这个任务交给main线程进行运行。）
+
+3、 DiscardOldestPolicy ： 丢弃最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。
+    （）
+
+4、 DiscardPolicy ： 该策略默默地丢弃无法处理的任务，不予任何处理。如果允许任务丢失，这是最好的一种方案。
+
+5、以上内置拒绝策略均实现了 RejectedExecutionHandler 接口，若以上策略仍无法满足实际需要，完全可以自己扩展 RejectedExecutionHandler 接口。
+6、经过测试：每个策略中：当队列满时，都会创建新线程处理任务，但是线程数不能超过maximumPoolSized
+
+VI、
+1、参考：https://blog.csdn.net/sunct/article/details/80281116（比较准确）
+2、https://blog.csdn.net/weixin_39616216/article/details/109761602（线程常用的方法以及参数大全）
+3、https://www.cnblogs.com/yszzu/p/10122658.html（关于线程池的一些问题）
+3、线程中断(interrupt)
+
+  中断一个线程，其本意是给这个线程一个通知信号，会影响这个线程内部的一个中断标识位。这个线程本身并不会因此而改变状态(如阻塞，终止等)。
+
+  1. 调用 interrupt()方法并不会中断一个正在运行的线程。也就是说处于 Running 状态的线程并不会因为被中断而被终止，仅仅改变了内部维护的中断标识位而已。
+
+  2. 若调用 sleep()而使线程处于 TIMED-WATING 状态，这时调用 interrupt()方法，会抛出InterruptedException,从而使线程提前结束 TIMED-WATING 超时等待状态。
+
+  3. 许多声明抛出 InterruptedException 的方法(如 Thread.sleep(long mills 方法))，抛出异常前，都会清除中断标识位，所以抛出异常后，调用 isInterrupted()方法将会返回 false。
+
+  4. 中断状态是线程固有的一个标识位，可以通过此标识位安全的终止线程。比如,你想终止一个线程 thread 的时候，可以调用 thread.interrupt()方法，在线程的 run 方法内部可以根据 thread.isInterrupted()的值来优雅的终止线程。

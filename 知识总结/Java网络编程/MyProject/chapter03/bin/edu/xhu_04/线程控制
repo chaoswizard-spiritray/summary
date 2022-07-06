@@ -1,0 +1,6 @@
+线程控制：
+	线程休眠：sleep(long millis);
+	线程加入：join();
+	线程礼让：yield();
+	后台线程:setDaemon(true);
+	线程中断：interrupt(),stop()

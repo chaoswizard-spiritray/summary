@@ -1,0 +1,10 @@
+@x 是 用户自定义的变量 (User variables are written as @var_name)
+@@x 是 global或session变量 (@@global @@session )
+
+@@查看全局变量:
+select @@log_error;
+select @@FOREIGN_KEY_CKECK;
+
+@设置全局变量值:
+mysql> SET @t1=0, @t2=0, @t3=0;
+mysql> SELECT @t1:=(@t2:=1)+@t3:=4,@t1,@t2,@t3;   //5 5 1 4

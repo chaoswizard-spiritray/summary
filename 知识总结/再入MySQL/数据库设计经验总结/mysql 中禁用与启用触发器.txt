@@ -1,0 +1,65 @@
+在使用MYSQL过程中，经常会使用到触发器，但是有时使用不当会造成一些麻烦。有没有一种办法可以控制触发器的调用呢？
+触发器顾名思义就是数据库在一定的调条件自动调用的SQL语句，触发器拒绝了人工调用的过程，由数据库MYSQL数据库自动的调用，执行更加高效。
+如何禁用触发器呢？
+
+1.新建两张表：
+表demo_1:
+
+CREATE TABLE `demo_1` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `STUNAME` varchar(32) DEFAULT NULL COMMENT '名字',
+  `AGE` tinyint(4) DEFAULT NULL COMMENT '年龄',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+表：demo_2
+
+CREATE TABLE `demo_2` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `STU_ID` int(11) DEFAULT NULL COMMENT '学生编号',
+  `MATH` double DEFAULT NULL COMMENT '成绩',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+2.然后给demo_1创建一个触发器
+DROP TRIGGER IF EXISTS `insertTragger`;
+DELIMITER ;;
+CREATE TRIGGER `insertTragger` AFTER INSERT ON `demo_1` FOR EACH ROW begin
+select ID  INTO @v1  from demo_1 order by ID desc limit 1;
+Insert into demo_2(STU_ID, MATH) values(@v1, 98.5);
+end
+;;
+DELIMITER ;
+3.触发器是：在demo_1中添加一条数据时，demo_2中自动添加一条数据。
+4.但是我不想每次出入数据都触发触发器呢，只有在我想触发的时候才触发。
+重新编写触发器：
+
+DROP TRIGGER IF EXISTS `insertTragger`;
+DELIMITER ;;
+CREATE TRIGGER `insertTragger` AFTER INSERT ON `demo_1` FOR EACH ROW begin
+if @enable_trigger = 1 then
+select ID  INTO @v1  from demo_1 order by ID desc limit 1;
+Insert into demo_2(STU_ID, MATH) values(@v1, 98.5);
+end if;
+end
+;;
+DELIMITER ;
+5.调用触发器
+SET @enable_trigger = 1;
+INSERT INTO demo_1(STUNAME , AGE) VALUES(‘小强’, 17);
+执行之后，表demo_1中增加一条数据
+2 小强 17
+表demo_2中同样也增加一条数据
+2 2 98.5
+
+6.禁用触法器
+SET @enable_trigger = 0;
+INSERT INTO demo_1(STUNAME , AGE) VALUES(‘小强’, 17);
+执行之后：
+执行之后，表demo_1中增加一条数据
+2 小强 17
+表demo_2中没有增加任何数据
+
+以上就解决了触发器的灵活调用。
+
+come from:https://blog.csdn.net/wb175208/article/details/81480983
+
+分类: MySQL

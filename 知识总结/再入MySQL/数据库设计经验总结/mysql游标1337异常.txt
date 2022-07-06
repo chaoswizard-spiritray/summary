@@ -1,0 +1,58 @@
+存储过程中用到了游标，在定义变量是遇到了：
+ERROR 1337: Variable or condition declaration after cursor
+
+这里是要先声明变量，再开始游标。
+游标(cursor)必须在声明处理程序之前被声明，并且变量和条件必须在声明游标或处理程序之前被声明。
+如字面意思所说，先声明变量，再声明游标。
+
+代码如下：
+ 
+DROP FUNCTION IF EXISTS `to_pinyin`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCommission`(IN `member_id` INT(11), OUT `result` INT(1))
+BEGIN
+-- 1.定义变量
+DECLARE result_code INTEGER DEFAULT 1; #定义返回结果并赋初值0
+DECLARE s int DEFAULT 0;
+DECLARE memberId int(11) DEFAULT 0;
+DECLARE commission float(10,2) DEFAULT 0;
+DECLARE total float(10,2) DEFAULT 0;
+-- 2.定义游标，并将sql结果集赋值到游标中
+DECLARE report CURSOR FOR (
+	SELECT O.*
+	FROM `orders` AS O 
+);
+-- 3.定义HANDLER
+DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET result_code=0; #在执行过程中出任何异常设置result_code为0
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET s=1;	#声明当游标遍历完后将标志变量置成某个值
+-- 打开游标
+open report;
+	-- 将游标中的值赋值给变量，注意：变量名不要和返回的列名同名，变量顺序要和sql结果列的顺序一致
+	fetch report into commission,memberId;
+	-- 当s不等于1，也就是未遍历完时，会一直循环
+	while s<>1 do
+		-- 执行业务逻辑
+		IF commission>0 THEN
+			SET total = total + commission;
+		END IF;
+		-- 将游标中的值再赋值给变量，供下次循环使用
+		fetch report into commission,memberId;
+	-- 当s等于1时表明遍历以完成，退出循环
+	end while;
+-- 关闭游标
+close report;
+ 
+#开始事务
+START TRANSACTION; 
+UPDATE `members` SET `commission` = total WHERE `id` = member_id;
+IF result_code=0 THEN
+	#捕捉到错误，回滚
+	ROLLBACK;
+ELSE
+	COMMIT;
+END IF;
+SET result = result_code;
+END
+;;
+DELIMITER ;
+整个过程如上面的代码所示
