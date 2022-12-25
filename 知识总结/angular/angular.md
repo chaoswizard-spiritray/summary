@@ -1,5 +1,9 @@
 #  Angular
 
+- [Performance API -- JavaScript 标准参考教程（alpha） (ruanyifeng.com)](https://javascript.ruanyifeng.com/bom/performance.html#performancenavigation对象)- angular的Observable讲解
+
+- [javascript - RxJs 核心概念之Observable_个人文章 - SegmentFault 思否](https://segmentfault.com/a/1190000005051034)
+
 - https://angular.cn
 
 - angular中的指令、管道、组件、模块、服务都是类。还有function、value。
@@ -953,6 +957,8 @@
 
 
 ## 路由和导航
+
+- [Ionic5路由跳转传值复用 - Java小学生丶 - 博客园 (cnblogs.com)](https://www.cnblogs.com/hanzhe/p/14259561.html)
 
 - [Angular - 路由器参考手册](https://angular.cn/guide/router-reference#router-events)
 

@@ -174,4 +174,5 @@
 - [分布式数据库sort那些事儿 - _雨 - 博客园 (cnblogs.com)](https://www.cnblogs.com/shangyu/p/6258969.html)
 - [mysql 常用命令手册 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/259994094)
 - [mysql 远程连接数据库的二种方法 - wq9 - 博客园 (cnblogs.com)](https://www.cnblogs.com/wq-9/articles/11062770.html)
+- [MySQL分页方法-太平洋IT百科 (pconline.com.cn)](https://product.pconline.com.cn/itbk/software/rjwt/1610/8493060.html)
 

@@ -2,6 +2,7 @@
 
 - [4.3 ES6 Class 类 | 菜鸟教程 (runoob.com)](https://www.runoob.com/w3cnote/es6-class.html)
 - [js 的单线程与异步 - 永不言退 - 博客园 (cnblogs.com)](https://www.cnblogs.com/netUserAdd/p/10930067.html)
+- [java返回map数据_ES6解析后端返回的Map数据 - 百度文库 (baidu.com)](https://wenku.baidu.com/view/4dc9e3d2f51fb7360b4c2e3f5727a5e9856a2767.html?_wkts_=1670030024393&bdQuery=前端如何接收后端java返回的Map类型)
 - ECMAScript
 
   - 是一种ECMA组织制定和发布的脚本语言规范,JS是其的一种实现。一般两者表达的是一个意思

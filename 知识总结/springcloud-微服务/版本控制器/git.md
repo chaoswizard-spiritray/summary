@@ -138,6 +138,9 @@
 
 ### 配置git忽略文件
 
+- [git 使gitnore立即生效 - 走看看 (zoukankan.com)](http://t.zoukankan.com/ydf0509-p-9395087.html)
+- [【Git】.gitignore文件的理解和使用_atwdy的博客-CSDN博客_gitignore是什么文件](https://blog.csdn.net/atwdy/article/details/126537529)
+
 - 在不同的编辑器中，你的项目可能会有不同编辑器独有的文件，这些文件与项目的实际功能无关，不参与服务器上部署运行。把他们忽略掉能够屏蔽IDE工具之间的差异
 
 - 怎么忽略？
@@ -147,10 +150,10 @@
   - 这个文件存放位置原则上在哪里都可以，为了便于让~/.gitconfig文件引用，建议也放在用户家目录下
 
     ```ignore
-    #Compiled class file
+    #Compiled class file，忽略class文件
     *.class
     
-    #Log file
+    #Log file，忽略日志文件
     *.log
     
     #BlueJ files
@@ -178,7 +181,7 @@
     *.iml
     ```
 
-  - 在git.config中引用这个忽略文件
+  - 在.gitconfig文件中引用这个忽略配置文件（此文件再Windows的家目录中）
 
     - [core]
 
@@ -205,3 +208,28 @@
 - 分享项目到GitHub上
 - 推送，建议通过ssh进行推送
 - 拉取
+
+## 自建代码团管平台-GitLab-一个局域网代码管理器
+
+- gitlab是由gitlabinc.开发，使用MIT许可证的基于网络的git仓库管理工具，且具有Wiki和issue跟踪功能l。使用git作为代码管理工具，并在此基础上搭建起来的web服务。
+- gitlab使用ruby语言写成。后来，一些部分用go重写。
+- https://about.gitlab.com/
+- https://about.gitlab.com/installation/
+
+### 安装
+
+- 准备一个系统为centos7以上版本的服务器，要求内存4G，磁盘50G，关闭防火墙，并且配置主机名和IP，保证服务器可以上网。
+
+- yum在线安装gitlab-ce时，需要下载几百M的安装文件，非常耗时，所以最好提前把所需RPM包下载到本地，然后使用离线rpm的方式安装。
+
+  ![20220719095234](.\img\20220719095234.jpg)
+
+- 编写安装脚本：直接参考官网安装脚本即可
+
+### idea集成gitlab
+
+- 安装gitlab插件
+
+- 然后配置gitlab,指定gitlab服务器地址以及连接协议。
+
+- 剩下操作和github操作一致。
